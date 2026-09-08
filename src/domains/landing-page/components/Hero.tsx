@@ -22,7 +22,7 @@ export default function Hero() {
         <div className="flex items-center gap-4 pt-2">
           <a
             href="#register"
-            className="px-6 py-3 bg-orange-500 text-white text-sm font-medium rounded-full hover:bg-orange-600 transition-colors"
+            className="px-6 py-3 bg-[#ff6600] text-white text-sm font-medium rounded-full hover:bg-orange-600 transition-colors"
           >
             Register your company
           </a>

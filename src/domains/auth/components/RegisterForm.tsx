@@ -55,13 +55,21 @@ function TextInput({
         }`}
       />
       {rightSlot && (
-        <div className="absolute inset-y-0 right-1 flex items-center">{rightSlot}</div>
+        <div className="absolute inset-y-0 right-1 flex items-center">
+          {rightSlot}
+        </div>
       )}
     </div>
   );
 }
 
-function EyeButton({ show, onToggle }: { show: boolean; onToggle: () => void }) {
+function EyeButton({
+  show,
+  onToggle,
+}: {
+  show: boolean;
+  onToggle: () => void;
+}) {
   return (
     <button
       type="button"
@@ -70,14 +78,34 @@ function EyeButton({ show, onToggle }: { show: boolean; onToggle: () => void }) 
       className="p-2 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"
     >
       {show ? (
-        <svg className="w-4.5 h-4.5" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          className="w-4.5 h-4.5"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
           <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
           <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
           <line x1="1" y1="1" x2="23" y2="23" />
         </svg>
       ) : (
-        <svg className="w-4.5 h-4.5" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          className="w-4.5 h-4.5"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
           <circle cx="12" cy="12" r="3" />
         </svg>
@@ -145,8 +173,10 @@ const EMAIL_RE = /^\S+@\S+\.\S+$/;
 function validateStep1(f: Step1) {
   const errors: Partial<Record<keyof Step1, string>> = {};
   if (!f.companyName.trim()) errors.companyName = "Company name is required.";
-  if (!f.companyEmail.trim()) errors.companyEmail = "Company email is required.";
-  else if (!EMAIL_RE.test(f.companyEmail)) errors.companyEmail = "Enter a valid email address.";
+  if (!f.companyEmail.trim())
+    errors.companyEmail = "Company email is required.";
+  else if (!EMAIL_RE.test(f.companyEmail))
+    errors.companyEmail = "Enter a valid email address.";
   return errors;
 }
 
@@ -154,12 +184,17 @@ function validateStep2(f: Step2) {
   const errors: Partial<Record<keyof Step2, string>> = {};
   if (!f.firstName.trim()) errors.firstName = "First name is required.";
   if (!f.lastName.trim()) errors.lastName = "Last name is required.";
-  if (!f.contactEmail.trim()) errors.contactEmail = "Contact email is required.";
-  else if (!EMAIL_RE.test(f.contactEmail)) errors.contactEmail = "Enter a valid email address.";
+  if (!f.contactEmail.trim())
+    errors.contactEmail = "Contact email is required.";
+  else if (!EMAIL_RE.test(f.contactEmail))
+    errors.contactEmail = "Enter a valid email address.";
   if (!f.password) errors.password = "Password is required.";
-  else if (f.password.length < 8) errors.password = "Use at least 8 characters.";
-  if (!f.confirmPassword) errors.confirmPassword = "Please confirm your password.";
-  else if (f.password !== f.confirmPassword) errors.confirmPassword = "Passwords do not match.";
+  else if (f.password.length < 8)
+    errors.password = "Use at least 8 characters.";
+  if (!f.confirmPassword)
+    errors.confirmPassword = "Please confirm your password.";
+  else if (f.password !== f.confirmPassword)
+    errors.confirmPassword = "Passwords do not match.";
   return errors;
 }
 
@@ -169,7 +204,11 @@ type StepErrors = Record<string, string | undefined>;
 /* Form                                                                */
 /* ------------------------------------------------------------------ */
 
-export default function RegisterForm({ onBackHome }: { onBackHome: () => void }) {
+export default function RegisterForm({
+  onBackHome,
+}: {
+  onBackHome: () => void;
+}) {
   const [step, setStep] = useState<1 | 2>(1);
   const [step1, setStep1] = useState<Step1>(emptyStep1);
   const [step2, setStep2] = useState<Step2>(emptyStep2);
@@ -222,7 +261,15 @@ export default function RegisterForm({ onBackHome }: { onBackHome: () => void })
       {done ? (
         <div className="animate-scale-in text-center py-8">
           <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-            <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              className="w-8 h-8 text-white"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M20 6L9 17l-5-5" />
             </svg>
           </div>
@@ -230,10 +277,15 @@ export default function RegisterForm({ onBackHome }: { onBackHome: () => void })
             Application received{step2.firstName ? `, ${step2.firstName}` : ""}
           </h2>
           <p className="mt-2 text-sm text-gray-500 leading-relaxed max-w-sm mx-auto">
-            Thank you for registering <span className="font-medium text-gray-700">{step1.companyName || "your company"}</span>.
-            Our onboarding team will reach out to{" "}
-            <span className="font-medium text-gray-700">{step1.companyEmail || "you"}</span> to verify
-            your details.
+            Thank you for registering{" "}
+            <span className="font-medium text-gray-700">
+              {step1.companyName || "your company"}
+            </span>
+            . Our onboarding team will reach out to{" "}
+            <span className="font-medium text-gray-700">
+              {step1.companyEmail || "you"}
+            </span>{" "}
+            to verify your details.
           </p>
           <div className="mt-7 flex flex-col items-center gap-3">
             <button
@@ -265,9 +317,14 @@ export default function RegisterForm({ onBackHome }: { onBackHome: () => void })
               const active = step === s.n;
               const completed = step > s.n;
               return (
-                <div key={s.n} className={`flex items-center ${i > 0 ? "flex-1" : ""}`}>
+                <div
+                  key={s.n}
+                  className={`flex items-center ${i > 0 ? "flex-1" : ""}`}
+                >
                   {i > 0 && (
-                    <div className={`flex-1 h-px mx-3 ${completed ? "bg-orange-400" : "bg-gray-200"}`} />
+                    <div
+                      className={`flex-1 h-px mx-3 ${completed ? "bg-orange-400" : "bg-gray-200"}`}
+                    />
                   )}
                   <div className="flex items-center gap-2">
                     <span
@@ -280,7 +337,15 @@ export default function RegisterForm({ onBackHome }: { onBackHome: () => void })
                       }`}
                     >
                       {completed ? (
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          className="w-3.5 h-3.5"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <path d="M20 6L9 17l-5-5" />
                         </svg>
                       ) : (
@@ -312,7 +377,9 @@ export default function RegisterForm({ onBackHome }: { onBackHome: () => void })
             <div key={step} className="animate-fade-up">
               {step === 1 ? (
                 <>
-                  <h3 className="text-[15px] font-semibold text-gray-900">Company Information</h3>
+                  <h3 className="text-[15px] font-semibold text-gray-900">
+                    Company Information
+                  </h3>
                   <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
                     <div>
                       <FieldLabel label="Company Name" required />
@@ -362,14 +429,23 @@ export default function RegisterForm({ onBackHome }: { onBackHome: () => void })
                             Select Industry
                           </option>
                           {industries.map((ind) => (
-                            <option key={ind} value={ind} className="text-gray-900">
+                            <option
+                              key={ind}
+                              value={ind}
+                              className="text-gray-900"
+                            >
                               {ind}
                             </option>
                           ))}
                         </select>
                         <svg
                           className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-                          viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
                         >
                           <path d="M6 9l6 6 6-6" />
                         </svg>
@@ -406,7 +482,9 @@ export default function RegisterForm({ onBackHome }: { onBackHome: () => void })
                 </>
               ) : (
                 <>
-                  <h3 className="text-[15px] font-semibold text-gray-900">Contact Person</h3>
+                  <h3 className="text-[15px] font-semibold text-gray-900">
+                    Contact Person
+                  </h3>
                   <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
                     <div>
                       <FieldLabel label="First Name" required />
@@ -454,7 +532,9 @@ export default function RegisterForm({ onBackHome }: { onBackHome: () => void })
                     </div>
                   </div>
 
-                  <h3 className="mt-8 text-[15px] font-semibold text-gray-900">Security</h3>
+                  <h3 className="mt-8 text-[15px] font-semibold text-gray-900">
+                    Security
+                  </h3>
                   <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
                     <div>
                       <FieldLabel label="Password" required />
@@ -466,7 +546,10 @@ export default function RegisterForm({ onBackHome }: { onBackHome: () => void })
                         placeholder="8+ characters"
                         error={!!errors.password}
                         rightSlot={
-                          <EyeButton show={showPassword} onToggle={() => setShowPassword((v) => !v)} />
+                          <EyeButton
+                            show={showPassword}
+                            onToggle={() => setShowPassword((v) => !v)}
+                          />
                         }
                       />
                       <FieldError message={errors.password} />
@@ -481,7 +564,10 @@ export default function RegisterForm({ onBackHome }: { onBackHome: () => void })
                         placeholder="Repeat password"
                         error={!!errors.confirmPassword}
                         rightSlot={
-                          <EyeButton show={showConfirm} onToggle={() => setShowConfirm((v) => !v)} />
+                          <EyeButton
+                            show={showConfirm}
+                            onToggle={() => setShowConfirm((v) => !v)}
+                          />
                         }
                       />
                       <FieldError message={errors.confirmPassword} />
@@ -505,7 +591,7 @@ export default function RegisterForm({ onBackHome }: { onBackHome: () => void })
               {step === 1 ? (
                 <button
                   type="submit"
-                  className="flex-1 px-6 py-3 rounded-full bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800 transition-colors shadow-lg shadow-gray-900/15"
+                  className="flex-1 px-6 py-3 rounded-full bg-[#ff6600] text-white text-sm font-semibold hover:bg-orange-600 transition-colors shadow-lg shadow-gray-900/15"
                 >
                   Continue →
                 </button>
@@ -517,9 +603,24 @@ export default function RegisterForm({ onBackHome }: { onBackHome: () => void })
                 >
                   {submitting ? (
                     <span className="inline-flex items-center justify-center gap-2">
-                      <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                      <svg
+                        className="w-4 h-4 animate-spin"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-90"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        />
                       </svg>
                       Registering…
                     </span>
@@ -533,7 +634,10 @@ export default function RegisterForm({ onBackHome }: { onBackHome: () => void })
 
           <p className="mt-6 text-center text-sm text-gray-500">
             Already have an account?{" "}
-            <a href="#login" className="font-medium text-orange-600 hover:text-orange-700 hover:underline">
+            <a
+              href="#login"
+              className="font-medium text-orange-600 hover:text-orange-700 hover:underline"
+            >
               Login here
             </a>
           </p>
