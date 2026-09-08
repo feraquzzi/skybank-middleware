@@ -1,6 +1,6 @@
 import RegisterForm from "./components/RegisterForm";
 import AuthPanel from "./components/AuthPanel";
-import logo from "../../../assets/skybank-logo.png";
+import logo from "../../assets/skybank-logo.png";
 
 export default function RegisterPage() {
   const goBackHome = () => {
