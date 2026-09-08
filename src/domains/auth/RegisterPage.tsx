@@ -1,5 +1,6 @@
 import RegisterForm from "./components/RegisterForm";
 import AuthPanel from "./components/AuthPanel";
+import logo from "../../../assets/skybank-logo.png";
 
 export default function RegisterPage() {
   const goBackHome = () => {
@@ -16,11 +17,7 @@ export default function RegisterPage() {
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="flex items-center justify-center mb-8">
-            <img
-              src="/src/assets/skybank-logo.png"
-              alt="Sky Bank Sierra Leone"
-              className="h-14"
-            />
+            <img src={logo} alt="Sky Bank Sierra Leone" className="h-14" />
           </div>
 
           {/* Header */}

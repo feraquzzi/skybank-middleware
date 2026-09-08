@@ -1,14 +1,12 @@
+import logo from "../../../assets/skybank-logo.png";
+
 const navLinks = ["About", "Services", "Pricing", "Company", "Resources"];
 
 export default function Navbar() {
   return (
     <nav className="flex items-center justify-between px-14 py-4">
       <div className="flex items-center">
-        <img
-          src="/src/assets/skybank-logo.png"
-          alt="Sky Bank Sierra Leone"
-          className="h-14"
-        />
+        <img src={logo} alt="Sky Bank Sierra Leone" className="h-14" />
       </div>
 
       <ul className="hidden md:flex items-center gap-8">
