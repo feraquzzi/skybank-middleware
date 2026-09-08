@@ -1,15 +1,15 @@
-export default function TopNav() {
+interface TopNavProps {
+  portal?: "admin" | "vendor";
+}
+
+export default function TopNav({ portal = "vendor" }: TopNavProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-100">
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-4">
-          <img
-            src="/src/assets/skybank-logo.png"
-            alt="Sky Bank Sierra Leone"
-            className="h-10"
-          />
+          <img src="/src/assets/skybank-logo.png" alt="Sky Bank Sierra Leone" className="h-10" />
           <span className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-semibold rounded-lg tracking-wide">
-            VENDOR PORTAL
+            {portal === "admin" ? "ADMIN PORTAL" : "VENDOR PORTAL"}
           </span>
         </div>
 
@@ -30,7 +30,7 @@ export default function TopNav() {
           <input
             type="text"
             placeholder="Search services, transactions, API keys..."
-            className="w-full pl-12 pr-14 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-600 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent shadow-sm"
+            className="w-full pl-12 pr-14 py-3 bg-white border border-gray-200 rounded-xl text-sm text-gray-600 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent shadow-sm"
           />
           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400 bg-gray-100 px-2.5 py-1 rounded-md font-mono border border-gray-200">
             ⌘K
@@ -57,11 +57,15 @@ export default function TopNav() {
 
           <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold text-sm">
-              LV
+              {portal === "admin" ? "AD" : "LV"}
             </div>
             <div className="text-right">
-              <p className="text-sm font-semibold text-gray-900">Liam Vance</p>
-              <p className="text-xs text-gray-400">Apex Vendor Services</p>
+              <p className="text-sm font-semibold text-gray-900">
+                {portal === "admin" ? "Admin User" : "Liam Vance"}
+              </p>
+              <p className="text-xs text-gray-400">
+                {portal === "admin" ? "Administrator" : "Apex Vendor Services"}
+              </p>
             </div>
             <svg
               className="w-4 h-4 text-gray-400"

@@ -12,11 +12,15 @@ export default function AdminDashboard() {
       <Sidebar />
 
       <div className="ml-20 p-6">
-        <TopNav />
+        <TopNav portal="admin" />
 
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Welcome Admin</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage companies, approvals, and platform operations</p>
+        <div className="mb-6 mt-20">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Welcome Back, Admin!
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Manage companies, approvals, and platform operations
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">

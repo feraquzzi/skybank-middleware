@@ -6,8 +6,14 @@ export default function Hero() {
       <div className="flex-1 space-y-6">
         <h1 className="text-2xl sm:text-3xl lg:text-5xl font-semi-bold leading-[1.1] tracking-tight">
           <span className="bg-gradient-to-r from-orange-300 to-orange-500 bg-clip-text text-transparent sm:text-6xl lg:text-6xl font-bold">
-            Welcome to Sky Bank Middleware
+            <span className="font-semi-bold bg-gradient-to-r from-gray-400 to-gray-600 bg-clip-text text-transparent  lg:text-6xl">
+              Welcome to Sky
+            </span>
           </span>{" "}
+          <br></br>
+          <span className="font-bold bg-gradient-to-r from-orange-300 to-orange-500 bg-clip-text text-transparent lg:text-6xl">
+            Bank Middleware
+          </span>
           <br></br>
           <span className="text-gray-900  font-semi-bold">
             Onboarding Platform

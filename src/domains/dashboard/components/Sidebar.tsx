@@ -9,8 +9,8 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="fixed left-4 top-0 bottom-0 flex flex-col items-center justify-center py-6 px-2 w-16 z-50">
-      <div className="flex flex-col items-center gap-3">
+    <aside className="fixed left-4 top-0 bottom-0 flex flex-col items-center py-6 px-2 w-16 z-50">
+      <div className="flex flex-col items-center gap-3 flex-1 justify-center">
         {icons.map((icon) => (
           <button
             key={icon.name}
@@ -27,6 +27,15 @@ export default function Sidebar() {
           </button>
         ))}
       </div>
+
+      <button
+        className="p-3 rounded-xl text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all"
+        title="logout"
+      >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+      </button>
     </aside>
   );
 }
