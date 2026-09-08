@@ -1,100 +1,101 @@
-import { useState } from "react";
-import DashboardLayout from "../components/DashboardLayout";
+import Sidebar from "../components/Sidebar";
 import TopNav from "../components/TopNav";
-import StatCard from "../components/StatCard";
-import WarningCard from "../components/WarningCard";
-import TeamPaymentsCard from "../components/TeamPaymentsCard";
-import IncomeStatsCard from "../components/IncomeStatsCard";
-import PricingCard from "../components/PricingCard";
-import ParticipantCard from "../components/ParticipantCard";
-import TransactionsCard from "../components/TransactionsCard";
-import SalesChartCard from "../components/SalesChartCard";
-
-const tabs = ["Dashboard", "Orders", "Products", "Analytics", "Settings"];
-
-const stats = [
-  { title: "Total Revenue", value: "$ 15,432.00", change: 5.2 },
-  { title: "Pending Orders", value: "$ 3,210.50", change: -1.5 },
-  { title: "Completed Sales", value: "$ 12,221.50", change: 8.3 },
-];
-
-const transactions = [
-  { company: "Google LLC", amount: "$156.00", status: "Payment Received", icon: "G", iconBg: "bg-red-500" },
-  { company: "Microsoft Corp.", amount: "$89.00", status: "Payment Received", icon: "M", iconBg: "bg-blue-600" },
-  { company: "Netflix Inc.", amount: "$45.00", status: "Pending", icon: "N", iconBg: "bg-red-600" },
-  { company: "Tesla Inc.", amount: "$210.00", status: "Payment Received", icon: "T", iconBg: "bg-gray-900" },
-];
+import VendorStatsCard from "../components/VendorStatsCard";
+import APITrafficCard from "../components/APITrafficCard";
+import AvailableServices from "../components/AvailableServices";
 
 export default function VendorDashboard() {
-  const [activeTab, setActiveTab] = useState("Dashboard");
-
   return (
-    <DashboardLayout>
-      <div className="max-w-7xl mx-auto space-y-6">
-        <TopNav
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          notifications={8}
-          userName="Sarah Johnson"
-        />
+    <div className="min-h-screen bg-gray-50">
+      <TopNav />
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-3 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {stats.map((stat) => (
-                <StatCard key={stat.title} {...stat} />
-              ))}
-            </div>
+      <Sidebar />
 
-            <div className="flex items-center gap-4">
-              <button className="px-5 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full">
-                Sales Overview
-              </button>
-              <button className="px-5 py-2.5 text-gray-500 text-sm font-medium hover:bg-gray-100 rounded-full transition-colors">
-                Revenue Summary
-              </button>
-              <button className="ml-auto p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <TeamPaymentsCard title="Product Sales" date="15th Nov 2023" memberCount={15} />
-              <IncomeStatsCard title="Revenue Growth" change={8.5} bars={[25, 40, 55, 50, 65, 75, 60]} />
-              <PricingCard price="$19.9" period="Per Month" title="Upgrade Your Vendor Plan!" buttonText="Get Started" />
-            </div>
-
-            <SalesChartCard
-              title="Monthly Revenue Breakdown"
-              date="15th Nov 2023"
-              totalProfit="$18k"
-              netValue="$8k"
-              totalCost="$10k"
-              invested="2 Invested"
-              chartData={[35, 50, 40, 65, 55, 70, 58, 45, 68, 55]}
-              tooltipValue="$52.00"
-            />
+      <div className="ml-20 pt-24 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Welcome Back, Liam !</h1>
+            <p className="text-sm text-gray-500 mt-1">Vendor Operations & API Services Hub</p>
           </div>
-
-          <div className="space-y-6">
-            <WarningCard
-              title="Complete Verification"
-              description="Verify your vendor account to access all features."
-            />
-
-            <ParticipantCard
-              title="Your Customers"
-              description="Building relationships with your customers through excellent service."
-              memberCount={89}
-            />
-
-            <TransactionsCard title="Recent Sales" transactions={transactions} />
+          <div className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl">
+            <div className="w-2 h-2 rounded-full bg-green-500" />
+            <span className="text-sm font-medium text-gray-700">Live Production API</span>
+            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">v2.4</span>
           </div>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <VendorStatsCard
+            title="TOTAL API REQUESTS"
+            value="2.84M"
+            change="+18.4%"
+            changeColor="green"
+            icon={
+              <svg className="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            }
+            footerLeft="99.98% Success Rate"
+            footerRight="Optimal"
+            footerRightColor="green"
+          />
+          <VendorStatsCard
+            title="SETTLED VOLUME"
+            value="$4.92M"
+            change="+12.1%"
+            changeColor="green"
+            icon={
+              <svg className="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            }
+            footerLeft="Avg. settlement: 1.2s"
+            footerRight="T+0 instant"
+            footerRightColor="green"
+          />
+          <VendorStatsCard
+            title="ACTIVE CUSTOMERS"
+            value="84,320"
+            change="+2,410 new"
+            changeColor="blue"
+            icon={
+              <svg className="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            }
+            footerLeft="Across 14 regions"
+            footerRight="Multi-KYC"
+            footerRightColor="green"
+          />
+          <VendorStatsCard
+            title="ESCROW BALANCE"
+            value="$385,400"
+            icon={
+              <svg className="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            }
+            footerLeft="Next payout 09:00 AM"
+            footerRight="Top-up →"
+            footerRightColor="orange"
+          />
+        </div>
+
+        <div className="mb-6">
+          <APITrafficCard />
+        </div>
+
+        <AvailableServices />
+
+        <footer className="mt-8 pt-6 border-t border-gray-200 flex items-center justify-between text-xs text-gray-400">
+          <p>Sky Bank Sierra Leone Limited · Authorized by Bank of Sierra Leone</p>
+          <div className="flex items-center gap-6">
+            <a href="#" className="hover:text-gray-600">API Documentation</a>
+            <a href="#" className="hover:text-gray-600">Developer Sandbox</a>
+            <a href="#" className="hover:text-gray-600">Security & Compliance</a>
+          </div>
+        </footer>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
