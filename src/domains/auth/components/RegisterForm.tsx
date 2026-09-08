@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-
 /* ------------------------------------------------------------------ */
 /* Small shared field primitives                                       */
 /* ------------------------------------------------------------------ */
@@ -120,14 +119,11 @@ function EyeButton({
 /* ------------------------------------------------------------------ */
 
 const industries = [
-  "Banking",
-  "Payments / Fintech",
-  "Insurance",
-  "Capital Markets",
-  "Retail & Commerce",
-  "Logistics",
-  "Telecom",
-  "Government",
+  "Technology",
+  "Finance",
+  "Healthcare",
+  "Retail",
+  "Manufacturing",
   "Other",
 ];
 
