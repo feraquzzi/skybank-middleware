@@ -1,3 +1,5 @@
+import logo from "../../../assets/skybank-logo.png";
+
 interface TopNavProps {
   portal?: "admin" | "vendor";
 }
@@ -7,7 +9,7 @@ export default function TopNav({ portal = "vendor" }: TopNavProps) {
     <header className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-100">
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-4">
-          <img src="/src/assets/skybank-logo.png" alt="Sky Bank Sierra Leone" className="h-10" />
+          <img src={logo} alt="Sky Bank Sierra Leone" className="h-10" />
           <span className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-semibold rounded-lg tracking-wide">
             {portal === "admin" ? "ADMIN PORTAL" : "VENDOR PORTAL"}
           </span>
