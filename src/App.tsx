@@ -106,11 +106,6 @@ function App() {
             />
 
             <Route
-                path="/login"
-                element={<RegisterPage />}
-            />
-
-            <Route
                 path="/register"
                 element={<RegisterPage />}
             />

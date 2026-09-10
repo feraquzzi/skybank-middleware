@@ -16,7 +16,11 @@ createRoot(document.getElementById('root')!).render(
         <ReactKeycloakProvider
             authClient={keycloak}
             onEvent={eventLogger}
+            onInitError={(error) => {
+                console.error('Keycloak init error:', error);
+            }}
             initOptions={{
+                onLoad: 'check-sso',
                 checkLoginIframe: false,
             }}
         >

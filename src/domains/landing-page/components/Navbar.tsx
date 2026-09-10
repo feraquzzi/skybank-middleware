@@ -1,9 +1,23 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useKeycloak } from '@react-keycloak/web';
 import logo from '../../../assets/skybank-logo.png';
 
 const navLinks = ["About", "Services", "Pricing", "Company", "Resources"];
 
 export default function Navbar() {
+  const { keycloak } = useKeycloak();
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    keycloak.login({
+      redirectUri: window.location.origin + '/',
+    });
+  };
+
+  const handleRegister = () => {
+    navigate('/register');
+  };
+
   return (
     <nav className="flex items-center justify-between px-14 py-4">
       <Link to="/">
@@ -26,18 +40,18 @@ export default function Navbar() {
       </ul>
 
       <div className="flex items-center gap-4">
-        <Link
-          to="/login"
+        <button
+          onClick={handleLogin}
           className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
         >
           Login
-        </Link>
-        <Link
-          to="/register"
+        </button>
+        <button
+          onClick={handleRegister}
           className="px-5 py-2.5 bg-orange-500 text-white text-sm font-medium rounded-full hover:bg-orange-600 transition-colors"
         >
           Register
-        </Link>
+        </button>
       </div>
     </nav>
   );

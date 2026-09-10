@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useKeycloak } from "@react-keycloak/web";
 
 /* ------------------------------------------------------------------ */
 /* Small shared field primitives                                       */
@@ -206,6 +207,7 @@ export default function RegisterForm({
 }: {
   onBackHome: () => void;
 }) {
+  const { keycloak } = useKeycloak();
   const [step, setStep] = useState<1 | 2>(1);
   const [step1, setStep1] = useState<Step1>(emptyStep1);
   const [step2, setStep2] = useState<Step2>(emptyStep2);
@@ -631,12 +633,17 @@ export default function RegisterForm({
 
           <p className="mt-6 text-center text-sm text-gray-500">
             Already have an account?{" "}
-            <a
-              href="#login"
+            <button
+              type="button"
+              onClick={() =>
+                keycloak.login({
+                  redirectUri: window.location.origin + "/",
+                })
+              }
               className="font-medium text-orange-600 hover:text-orange-700 hover:underline"
             >
               Login here
-            </a>
+            </button>
           </p>
         </>
       )}
