@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useKeycloak } from "@react-keycloak/web";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 /* ------------------------------------------------------------------ */
 /* Small shared field primitives                                       */
@@ -208,6 +210,7 @@ export default function RegisterForm({
   onBackHome: () => void;
 }) {
   const { keycloak } = useKeycloak();
+  const navigate = useNavigate();
   const [step, setStep] = useState<1 | 2>(1);
   const [step1, setStep1] = useState<Step1>(emptyStep1);
   const [step2, setStep2] = useState<Step2>(emptyStep2);
@@ -216,6 +219,8 @@ export default function RegisterForm({
   const [showConfirm, setShowConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const [apiSuccess, setApiSuccess] = useState("");
 
   const s1 = (key: keyof Step1) => (v: string) =>
     setStep1((p) => ({ ...p, [key]: v }));
@@ -237,15 +242,52 @@ export default function RegisterForm({
     setStep(1);
   };
 
-  const submit = () => {
+  const submit = async () => {
     const errs = validateStep2(step2);
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
+
+    setApiError("");
+    setApiSuccess("");
     setSubmitting(true);
-    window.setTimeout(() => {
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/register`,
+        {
+          companyName: step1.companyName,
+          companyEmail: step1.companyEmail,
+          phoneNumber: step1.phone,
+          companyAddress: step1.address,
+          industry: step1.industry,
+          taxId: step1.taxId,
+          registrationNumber: step1.registrationNumber,
+          contactFirstName: step2.firstName,
+          contactLastName: step2.lastName,
+          contactEmail: step2.contactEmail,
+          contactPhone: step2.contactPhone,
+          password: step2.password,
+        }
+      );
+
+      if (response.status === 201) {
+        setApiSuccess(
+          "Registration submitted successfully! An admin will review your application."
+        );
+        setTimeout(() => {
+          navigate("/");
+        }, 3000);
+      }
+    } catch (err: unknown) {
+      const errorMessage =
+        (err as any).response?.data?.details
+          ? Object.values((err as any).response.data.details)[0]
+          : (err as any).response?.data?.error ||
+            "Registration failed. Please try again.";
+      setApiError(errorMessage as string);
+    } finally {
       setSubmitting(false);
-      setDone(true);
-    }, 1100);
+    }
   };
 
   /* ---------------- stepper ---------------- */
@@ -373,6 +415,16 @@ export default function RegisterForm({
             }}
             noValidate
           >
+            {apiError && (
+              <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600">
+                {apiError}
+              </div>
+            )}
+            {apiSuccess && (
+              <div className="mb-4 p-3 rounded-xl bg-green-50 border border-green-200 text-sm text-green-600">
+                {apiSuccess}
+              </div>
+            )}
             <div key={step} className="animate-fade-up">
               {step === 1 ? (
                 <>
