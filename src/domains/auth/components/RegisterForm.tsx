@@ -256,7 +256,7 @@ export default function RegisterForm({
         `${import.meta.env.VITE_API_URL}/register`,
         {
           companyName: step1.companyName,
-          companyEmail: step1.companyEmail,
+          contactEmail: step2.contactEmail || step1.companyEmail,
           phoneNumber: step1.phone,
           companyAddress: step1.address,
           industry: step1.industry,
@@ -264,9 +264,9 @@ export default function RegisterForm({
           registrationNumber: step1.registrationNumber,
           contactFirstName: step2.firstName,
           contactLastName: step2.lastName,
-          contactEmail: step2.contactEmail,
           contactPhone: step2.contactPhone,
           password: step2.password,
+          country: "",
         }
       );
 

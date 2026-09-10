@@ -1,4 +1,4 @@
-export default function TotalCompaniesCard() {
+export default function TotalCompaniesCard({ count }: { count?: number }) {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
       <div className="flex items-start justify-between mb-4">
@@ -22,7 +22,7 @@ export default function TotalCompaniesCard() {
       </div>
 
       <div className="flex items-center gap-3 mb-4">
-        <span className="text-4xl font-bold text-gray-900">1,428</span>
+        <span className="text-4xl font-bold text-gray-900">{(count ?? 0).toLocaleString()}</span>
         <span className="flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />

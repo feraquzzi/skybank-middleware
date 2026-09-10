@@ -1,4 +1,8 @@
+import { useKeycloak } from "@react-keycloak/web";
+
 export default function Sidebar() {
+  const { keycloak } = useKeycloak();
+
   const icons = [
     { name: "sparkles", path: "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" },
     { name: "home", path: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6", active: true },
@@ -29,6 +33,7 @@ export default function Sidebar() {
       </div>
 
       <button
+        onClick={() => keycloak.logout({ redirectUri: window.location.origin })}
         className="p-3 rounded-xl text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all"
         title="logout"
       >

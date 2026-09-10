@@ -5,8 +5,13 @@ import PendingApprovalsCard from "../components/PendingApprovalsCard";
 import RecentRegistrationsCard from "../components/RecentRegistrationsCard";
 import OverviewChart from "../components/OverviewChart";
 import ActiveCompaniesCard from "../components/ActiveCompaniesCard";
+import { useClients } from "../../../lib/useClients";
 
 export default function AdminDashboard() {
+  const { clients, status } = useClients();
+
+  const total = status === "success" ? clients.length : 0;
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Sidebar />
@@ -24,7 +29,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <TotalCompaniesCard />
+          <TotalCompaniesCard count={total} />
           <OverviewChart currentYearValue="$20,000" lastYearValue="$40,000" />
         </div>
 
