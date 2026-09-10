@@ -1,13 +1,16 @@
-import logo from "../../../assets/skybank-logo.png";
+import { Link } from 'react-router-dom';
+import logo from '../../../assets/skybank-logo.png';
 
 const navLinks = ["About", "Services", "Pricing", "Company", "Resources"];
 
 export default function Navbar() {
   return (
     <nav className="flex items-center justify-between px-14 py-4">
-      <div className="flex items-center">
-        <img src={logo} alt="Sky Bank Sierra Leone" className="h-14" />
-      </div>
+      <Link to="/">
+        <div className="flex items-center">
+          <img src={logo} alt="Sky Bank Sierra Leone" className="h-14" />
+        </div>
+      </Link>
 
       <ul className="hidden md:flex items-center gap-8">
         {navLinks.map((link) => (
@@ -23,18 +26,18 @@ export default function Navbar() {
       </ul>
 
       <div className="flex items-center gap-4">
-        <a
-          href="#login"
+        <Link
+          to="/login"
           className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
         >
           Login
-        </a>
-        <a
-          href="#register"
+        </Link>
+        <Link
+          to="/register"
           className="px-5 py-2.5 bg-orange-500 text-white text-sm font-medium rounded-full hover:bg-orange-600 transition-colors"
         >
           Register
-        </a>
+        </Link>
       </div>
     </nav>
   );

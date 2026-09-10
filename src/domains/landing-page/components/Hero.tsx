@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import FeatureGrid from "./FeatureGrid";
 
 export default function Hero() {
@@ -26,41 +27,19 @@ export default function Hero() {
         </p>
 
         <div className="flex items-center gap-4 pt-2">
-          <a
-            href="#register"
+          <Link
+            to="/register"
             className="px-6 py-3 bg-[#ff6600] text-white text-sm font-medium rounded-full hover:bg-orange-600 transition-colors"
           >
             Register your company
-          </a>
-          <a
-            href="#login"
+          </Link>
+          <Link
+            to="/login"
             className="px-6 py-3 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-gray-800 transition-colors"
           >
             Login
-          </a>
+          </Link>
         </div>
-
-        {/* <div className="flex items-center gap-4 pt-6">
-          <div className="flex -space-x-3">
-            <div className="w-10 h-10 rounded-full bg-orange-400 flex items-center justify-center text-white text-xs font-bold border-2 border-white z-30">
-              AN
-            </div>
-            <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold border-2 border-white z-20">
-              SK
-            </div>
-            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold border-2 border-white z-10">
-              MD
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center gap-1 text-sm font-semibold text-gray-900">
-              <span className="text-orange-500">&#8593;</span> 25 Million +
-            </div>
-            <p className="text-xs text-gray-400">
-              Empowering your financial future with innovative solutions.
-            </p>
-          </div>
-        </div> */}
       </div>
 
       <div className="flex-1 w-full">

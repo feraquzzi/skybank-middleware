@@ -1,10 +1,13 @@
+import { useNavigate } from "react-router-dom";
 import RegisterForm from "./components/RegisterForm";
 import AuthPanel from "./components/AuthPanel";
 import logo from "../../assets/skybank-logo.png";
 
 export default function RegisterPage() {
+  const navigate = useNavigate();
+
   const goBackHome = () => {
-    window.location.hash = "";
+    navigate("/");
   };
 
   return (
