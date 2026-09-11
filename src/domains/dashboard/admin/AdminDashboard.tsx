@@ -6,9 +6,11 @@ import RecentRegistrationsCard from "../components/RecentRegistrationsCard";
 import OverviewChart from "../components/OverviewChart";
 import ActiveCompaniesCard from "../components/ActiveCompaniesCard";
 import { useClients } from "../../../lib/useClients";
+import { getDisplayName } from "../../../lib/user";
 
 export default function AdminDashboard() {
   const { clients, status } = useClients();
+  const displayName = getDisplayName();
 
   const total = status === "success" ? clients.length : 0;
 
@@ -21,7 +23,7 @@ export default function AdminDashboard() {
 
         <div className="mb-6 mt-20">
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome Back, Admin!
+            Welcome Back, {displayName}!
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             Manage companies, approvals, and platform operations

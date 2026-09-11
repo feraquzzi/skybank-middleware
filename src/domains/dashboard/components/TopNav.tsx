@@ -1,10 +1,14 @@
 import logo from "../../../assets/skybank-logo.png";
+import { getDisplayName, getInitials } from "../../../lib/user";
 
 interface TopNavProps {
   portal?: "admin" | "vendor";
 }
 
 export default function TopNav({ portal = "vendor" }: TopNavProps) {
+  const displayName = getDisplayName();
+  const initials = getInitials();
+
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-100">
       <div className="flex items-center justify-between px-6 py-4">
@@ -59,14 +63,14 @@ export default function TopNav({ portal = "vendor" }: TopNavProps) {
 
           <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold text-sm">
-              {portal === "admin" ? "AD" : "LV"}
+              {initials}
             </div>
             <div className="text-right">
               <p className="text-sm font-semibold text-gray-900">
-                {portal === "admin" ? "Admin User" : "Liam Vance"}
+                {displayName}
               </p>
               <p className="text-xs text-gray-400">
-                {portal === "admin" ? "Administrator" : "Apex Vendor Services"}
+                {portal === "admin" ? "Administrator" : "Vendor"}
               </p>
             </div>
             <svg

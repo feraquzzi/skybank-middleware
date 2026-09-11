@@ -3,8 +3,11 @@ import TopNav from "../components/TopNav";
 import VendorStatsCard from "../components/VendorStatsCard";
 import APITrafficCard from "../components/APITrafficCard";
 import AvailableServices from "../components/AvailableServices";
+import { getDisplayName } from "../../../lib/user";
 
 export default function VendorDashboard() {
+  const displayName = getDisplayName();
+
   return (
     <div className="min-h-screen bg-gray-50">
       <TopNav />
@@ -14,7 +17,7 @@ export default function VendorDashboard() {
       <div className="ml-20 pt-24 p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Welcome Back, Liam !</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Welcome Back, {displayName} !</h1>
             <p className="text-sm text-gray-500 mt-1">Vendor Operations & API Services Hub</p>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl">
