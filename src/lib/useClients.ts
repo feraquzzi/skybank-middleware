@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { adminApi, ClientResponse } from "./api";
+import { adminApi, type ClientResponse } from "./api";
 
 type Status = "loading" | "success" | "error";
 
@@ -14,7 +14,7 @@ export function useClients(statusFilter?: ClientResponse["status"]) {
     try {
       const data = statusFilter
         ? (await adminApi.getAllClients()).filter(
-            (c) => c.status === statusFilter
+            (c) => c.status === statusFilter,
           )
         : await adminApi.getAllClients();
       setClients(data);
@@ -59,7 +59,7 @@ export function usePendingClients() {
       await adminApi.approveClient(clientId, roles);
       setClients((prev) => prev.filter((c) => c.id !== clientId));
     },
-    []
+    [],
   );
 
   const reject = useCallback(async (clientId: string) => {

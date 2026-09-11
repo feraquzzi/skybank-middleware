@@ -25,9 +25,9 @@ export default function PendingApprovalsCard() {
   const { clients, status, error, approve, reject } = usePendingClients();
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
 
-  const handleApprove = async (clientId: string) => {
+  const handleApprove = async (clientId: string, roles: string[] = []) => {
     try {
-      await approve(clientId);
+      await approve(clientId, roles);
     } catch {
       // error handled silently for now
     }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { adminApi, ClientResponse } from "../../../lib/api";
+import { adminApi, type ClientResponse } from "../../../lib/api";
 
 function getInitials(name: string) {
   return name
@@ -25,7 +25,7 @@ function formatDate(dateStr: string | null) {
 interface ClientDetailModalProps {
   clientId: string;
   onClose: () => void;
-  onApprove: (clientId: string) => void;
+  onApprove: (clientId: string, roles: string[]) => void;
   onReject: (clientId: string) => void;
 }
 
@@ -36,7 +36,10 @@ export default function ClientDetailModal({
   onReject,
 }: ClientDetailModalProps) {
   const [client, setClient] = useState<ClientResponse | null>(null);
+  const [availableRoles, setAvailableRoles] = useState<string[]>([]);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rolesLoading, setRolesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [acting, setActing] = useState(false);
 
@@ -55,7 +58,9 @@ export default function ClientDetailModal({
       })
       .catch((err) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load client");
+          setError(
+            err instanceof Error ? err.message : "Failed to load client",
+          );
           setLoading(false);
         }
       });
@@ -65,11 +70,41 @@ export default function ClientDetailModal({
     };
   }, [clientId]);
 
+  useEffect(() => {
+    let cancelled = false;
+    setRolesLoading(true);
+
+    adminApi
+      .getRoles()
+      .then((data) => {
+        if (!cancelled) {
+          setAvailableRoles(data);
+          setRolesLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setAvailableRoles([]);
+          setRolesLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const toggleRole = (role: string) => {
+    setSelectedRoles((prev) =>
+      prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role],
+    );
+  };
+
   const handleApprove = async () => {
     if (!client) return;
     setActing(true);
     try {
-      await onApprove(client.id);
+      await onApprove(client.id, selectedRoles);
       onClose();
     } catch {
       setActing(false);
@@ -218,6 +253,57 @@ export default function ClientDetailModal({
                     value={formatDate(client.approvedAt)}
                   />
                 </div>
+              </div>
+
+              {/* Role assignment */}
+              <div>
+                <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                  Assign Roles
+                </h4>
+                <p className="text-xs text-gray-400 mb-3">
+                  <code className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">
+                    ROLE_CLIENT
+                  </code>{" "}
+                  is always assigned automatically.
+                </p>
+                {rolesLoading ? (
+                  <p className="text-xs text-gray-400">Loading roles…</p>
+                ) : availableRoles.length === 0 ? (
+                  <p className="text-xs text-gray-400">
+                    No additional roles available
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {availableRoles.map((role) => (
+                      <button
+                        key={role}
+                        onClick={() => toggleRole(role)}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
+                          selectedRoles.includes(role)
+                            ? "bg-orange-500 text-white border-orange-500"
+                            : "bg-white text-gray-600 border-gray-200 hover:border-orange-300 hover:text-orange-600"
+                        }`}
+                      >
+                        {selectedRoles.includes(role) && (
+                          <svg
+                            className="inline w-3 h-3 mr-1 -mt-0.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={3}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        )}
+                        {role}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}

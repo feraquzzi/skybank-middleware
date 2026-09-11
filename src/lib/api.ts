@@ -1,4 +1,10 @@
 import keycloak from "../keycloak";
+import type {
+  ClientResponse,
+  AvailabilityResponse,
+} from "./types";
+
+export type { ClientResponse, AvailabilityResponse };
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
 
@@ -30,42 +36,6 @@ async function request<T>(
 
   if (res.status === 204) return undefined as T;
   return res.json();
-}
-
-/* ---- Client types (matches backend OpenAPI schema) ---- */
-
-export interface ClientResponse {
-  id: string;
-  companyName: string;
-  contactEmail: string;
-  contactFirstName: string;
-  contactLastName: string;
-  contactPhone: string;
-  registrationNumber: string;
-  country: string;
-  address: string;
-  taxId: string;
-  industry: string;
-  phoneNumber: string;
-  status:
-    | "PENDING"
-    | "APPROVED"
-    | "REJECTED"
-    | "ACTIVE"
-    | "SUSPENDED"
-    | "INACTIVE";
-  createdAt: string;
-  approvedAt: string | null;
-  userCount: number;
-}
-
-export interface ApproveClientRequest {
-  approvedRoles: string[];
-}
-
-export interface AvailabilityResponse {
-  usernameAvailable: boolean;
-  emailAvailable: boolean;
 }
 
 /* ---- Admin endpoints ---- */
