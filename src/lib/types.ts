@@ -4,6 +4,7 @@ export interface ClientResponse {
   contactEmail: string;
   contactFirstName: string;
   contactLastName: string;
+  companyAddress: string;
   contactPhone: string;
   registrationNumber: string;
   country: string;
