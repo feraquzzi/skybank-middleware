@@ -6,6 +6,7 @@ import LandingPage from './domains/landing-page/LandingPage';
 import RegisterPage from './domains/auth/RegisterPage';
 import AdminDashboard from './domains/dashboard/admin/AdminDashboard';
 import VendorDashboard from './domains/dashboard/vendor/VendorDashboard';
+import ServicesPage from './domains/dashboard/components/ServicesPage';
 import ProtectedRoute from './domains/dashboard/components/ProtectedRoute';
 import logo from './assets/skybank-logo.png';
 
@@ -122,7 +123,7 @@ function App() {
                 }
             />
 
-            <Route
+<Route
                 path="/vendor-dashboard"
                 element={
                     <ProtectedRoute
@@ -133,6 +134,7 @@ function App() {
                     </ProtectedRoute>
                 }
             />
+            <Route path="/services" element={<ServicesPage />} />
         </Routes>
     );
 }

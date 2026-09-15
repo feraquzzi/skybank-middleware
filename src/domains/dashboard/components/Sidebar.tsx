@@ -1,45 +1,129 @@
 import { useKeycloak } from "@react-keycloak/web";
+import { useLocation, useNavigate } from "react-router-dom";
+
+interface NavItem {
+  name: string;
+  icon: string;
+  to?: string;
+  soon?: boolean;
+}
 
 export default function Sidebar() {
   const { keycloak } = useKeycloak();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const icons = [
-    { name: "sparkles", path: "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" },
-    { name: "home", path: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6", active: true },
-    { name: "list", path: "M4 6h16M4 10h16M4 14h16M4 18h16" },
-    { name: "mail", path: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" },
-    { name: "chart", path: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
-    { name: "settings", path: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z" },
+  const roles = keycloak.realmAccess?.roles ?? [];
+  const homePath = roles.includes("ROLE_ADMIN")
+    ? "/admin-dashboard"
+    : "/vendor-dashboard";
+
+  const items: NavItem[] = [
+    {
+      name: "Home",
+      icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
+      to: homePath,
+    },
+    {
+      name: "Services",
+      icon: "M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z",
+      to: "/services",
+    },
+    {
+      name: "Notifications",
+      icon: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
+      soon: true,
+    },
+    {
+      name: "Settings",
+      icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z",
+      soon: true,
+    },
   ];
+
+  const isActive = (item: NavItem) => !!item.to && location.pathname === item.to;
 
   return (
     <aside className="fixed left-4 top-0 bottom-0 flex flex-col items-center py-6 px-2 w-16 z-50">
       <div className="flex flex-col items-center gap-3 flex-1 justify-center">
-        {icons.map((icon) => (
-          <button
-            key={icon.name}
-            className={`p-3 rounded-xl transition-all ${
-              icon.active
-                ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30"
-                : "text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-            }`}
-            title={icon.name}
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d={icon.path} />
-            </svg>
-          </button>
-        ))}
+        {items.map((item) => {
+          const active = isActive(item);
+
+          return (
+            <button
+              key={item.name}
+              type="button"
+              onClick={() => item.to && navigate(item.to)}
+              aria-current={active ? "page" : undefined}
+              title={item.soon ? `${item.name} (coming soon)` : item.name}
+              className={`group relative p-3 rounded-xl cursor-pointer transition-all duration-200 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 ${
+                active
+                  ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30"
+                  : item.soon
+                    ? "text-gray-300 hover:bg-gray-100"
+                    : "text-gray-400 hover:bg-orange-50 hover:text-orange-500 hover:-translate-y-0.5"
+              }`}
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d={item.icon}
+                />
+              </svg>
+
+              {/* Pending badge for sections without a page yet */}
+              {item.soon && (
+                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-gray-300" />
+              )}
+
+              {/* Hover tooltip */}
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute left-full top-1/2 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100"
+              >
+                {item.name}
+                {item.soon && (
+                  <span className="ml-1.5 text-orange-300">Soon</span>
+                )}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       <button
+        type="button"
         onClick={() => keycloak.logout({ redirectUri: window.location.origin })}
-        className="p-3 rounded-xl text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all"
-        title="logout"
+        title="Log out"
+        className="group relative p-3 rounded-xl cursor-pointer text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
       >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+          />
         </svg>
+
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute left-full top-1/2 ml-3 -translate-y-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100"
+        >
+          Log out
+        </span>
       </button>
     </aside>
   );

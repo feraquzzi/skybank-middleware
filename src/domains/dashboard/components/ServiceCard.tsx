@@ -6,6 +6,7 @@ interface ServiceCardProps {
   buttonText: string;
   buttonColor?: "orange" | "gray";
   icon: React.ReactNode;
+  defaultLabel?: string;
 }
 
 export default function ServiceCard({
@@ -16,6 +17,7 @@ export default function ServiceCard({
   buttonText,
   buttonColor = "orange",
   icon,
+  defaultLabel,
 }: ServiceCardProps) {
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
@@ -23,10 +25,24 @@ export default function ServiceCard({
         <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center">
           {icon}
         </div>
-        <span className="flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-          Active
-        </span>
+
+        <div className="flex items-center gap-3">
+          {/* Default pill - only for ROLE_CLIENT */}
+          {defaultLabel ? (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-gray-100 text-gray-600 text-xs font-medium">
+              <span className="w-1 h-1 rounded-full bg-gray-400" />
+              {defaultLabel}
+            </span>
+          ) : (
+            ""
+          )}
+
+          {/* Active pill - always shown */}
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-green-100 text-green-600 text-xs font-medium">
+            <span className="w-1 h-1 rounded-full bg-green-400" />
+            Active
+          </span>
+        </div>
       </div>
 
       <h4 className="text-base font-semibold text-gray-900 mb-2">{title}</h4>
