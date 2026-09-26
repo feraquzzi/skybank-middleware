@@ -7,6 +7,10 @@ import RegisterPage from './domains/auth/RegisterPage';
 import AdminDashboard from './domains/dashboard/admin/AdminDashboard';
 import VendorDashboard from './domains/dashboard/vendor/VendorDashboard';
 import ServicesPage from './domains/dashboard/components/ServicesPage';
+import ClientsPage from './domains/dashboard/admin/ClientsPage';
+import UsersPage from './domains/dashboard/admin/UsersPage';
+import RoleRequestsPage from './domains/dashboard/admin/RoleRequestsPage';
+import AuditPage from './domains/dashboard/admin/AuditPage';
 import ProtectedRoute from './domains/dashboard/components/ProtectedRoute';
 import logo from './assets/skybank-logo.png';
 
@@ -135,6 +139,40 @@ function App() {
                 }
             />
             <Route path="/services" element={<ServicesPage />} />
+
+            {/* Administration - every screen here is gated on ROLE_ADMIN. */}
+            <Route
+                path="/admin/clients"
+                element={
+                    <ProtectedRoute requiredRole="admin" userRole={userRole}>
+                        <ClientsPage />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/admin/role-requests"
+                element={
+                    <ProtectedRoute requiredRole="admin" userRole={userRole}>
+                        <RoleRequestsPage />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/admin/users"
+                element={
+                    <ProtectedRoute requiredRole="admin" userRole={userRole}>
+                        <UsersPage />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/admin/audit"
+                element={
+                    <ProtectedRoute requiredRole="admin" userRole={userRole}>
+                        <AuditPage />
+                    </ProtectedRoute>
+                }
+            />
         </Routes>
     );
 }

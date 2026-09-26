@@ -27,6 +27,10 @@ interface ClientDetailModalProps {
   onClose: () => void;
   onApprove: (clientId: string, roles: string[]) => void;
   onReject: (clientId: string) => void;
+  /** Suspend an approved / active client. Omit where the caller cannot suspend. */
+  onSuspend?: (clientId: string) => void;
+  /** Reactivate a suspended or rejected client. */
+  onActivate?: (clientId: string, roles: string[]) => void;
 }
 
 export default function ClientDetailModal({
@@ -34,6 +38,8 @@ export default function ClientDetailModal({
   onClose,
   onApprove,
   onReject,
+  onSuspend,
+  onActivate,
 }: ClientDetailModalProps) {
   const [client, setClient] = useState<ClientResponse | null>(null);
   const [availableRoles, setAvailableRoles] = useState<string[]>([]);
@@ -116,6 +122,28 @@ export default function ClientDetailModal({
     setActing(true);
     try {
       await onReject(client.id);
+      onClose();
+    } catch {
+      setActing(false);
+    }
+  };
+
+  const handleSuspend = async () => {
+    if (!client || !onSuspend) return;
+    setActing(true);
+    try {
+      await onSuspend(client.id);
+      onClose();
+    } catch {
+      setActing(false);
+    }
+  };
+
+  const handleActivate = async () => {
+    if (!client || !onActivate) return;
+    setActing(true);
+    try {
+      await onActivate(client.id, selectedRoles);
       onClose();
     } catch {
       setActing(false);
@@ -309,29 +337,65 @@ export default function ClientDetailModal({
           )}
         </div>
 
-        {/* Footer */}
+        {/* Footer - the actions depend on where the client is in the workflow */}
         {client && (
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-100">
+          <div className="flex flex-wrap items-center justify-end gap-3 p-6 border-t border-gray-100">
             <button
               onClick={onClose}
               className="px-5 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
             >
               Close
             </button>
-            <button
-              onClick={handleReject}
-              disabled={acting}
-              className="px-5 py-2.5 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors disabled:opacity-50"
-            >
-              {acting ? "Processing…" : "Reject"}
-            </button>
-            <button
-              onClick={handleApprove}
-              disabled={acting}
-              className="px-5 py-2.5 text-sm font-medium text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors disabled:opacity-50"
-            >
-              {acting ? "Processing…" : "Approve"}
-            </button>
+
+            {client.status === "PENDING" && (
+              <>
+                <button
+                  onClick={handleReject}
+                  disabled={acting}
+                  className="px-5 py-2.5 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors disabled:opacity-50"
+                >
+                  {acting ? "Processing…" : "Reject"}
+                </button>
+                <button
+                  onClick={handleApprove}
+                  disabled={acting || selectedRoles.length === 0}
+                  title={
+                    selectedRoles.length === 0
+                      ? "Select at least one service role to approve"
+                      : undefined
+                  }
+                  className="px-5 py-2.5 text-sm font-medium text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {acting ? "Processing…" : "Approve"}
+                </button>
+              </>
+            )}
+
+            {(client.status === "APPROVED" || client.status === "ACTIVE") &&
+              onSuspend && (
+                <button
+                  onClick={handleSuspend}
+                  disabled={acting}
+                  className="px-5 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-colors disabled:opacity-50"
+                >
+                  {acting ? "Processing…" : "Suspend"}
+                </button>
+              )}
+
+            {(client.status === "SUSPENDED" || client.status === "REJECTED") &&
+              onActivate && (
+                <button
+                  onClick={handleActivate}
+                  disabled={acting}
+                  className="px-5 py-2.5 text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                >
+                  {acting
+                    ? "Processing…"
+                    : client.status === "REJECTED"
+                      ? "Reinstate"
+                      : "Activate"}
+                </button>
+              )}
           </div>
         )}
       </div>

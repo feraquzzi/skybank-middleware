@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useKeycloak } from "@react-keycloak/web";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { publicApi } from "../../../lib/api";
 
 /* ------------------------------------------------------------------ */
 /* Small shared field primitives                                       */
@@ -30,6 +31,7 @@ function TextInput({
   id,
   value,
   onChange,
+  onBlur,
   placeholder,
   error,
   type = "text",
@@ -38,6 +40,7 @@ function TextInput({
   id: string;
   value: string;
   onChange: (v: string) => void;
+  onBlur?: () => void;
   placeholder?: string;
   error?: boolean;
   type?: string;
@@ -50,6 +53,7 @@ function TextInput({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
         placeholder={placeholder}
         className={`w-full rounded-xl bg-slate-50/80 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 outline-none ring-1 transition ${rightSlot ? "pr-11" : ""} ${
           error
@@ -200,6 +204,25 @@ function validateStep2(f: Step2) {
 
 type StepErrors = Record<string, string | undefined>;
 
+const EMAIL_TAKEN_MSG = "This email address is already registered.";
+
+/**
+ * `GET /api/check-availability` - the account username is the contact email, so both flags
+ * describe the same value. Returns `null` when the check itself failed, in which case the
+ * form lets the server reject a real duplicate on submit.
+ */
+async function lookupEmail(email: string): Promise<boolean | null> {
+  try {
+    const result = await publicApi.checkAvailability({
+      username: email,
+      email,
+    });
+    return result.emailAvailable && result.usernameAvailable;
+  } catch {
+    return null;
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* Form                                                                */
 /* ------------------------------------------------------------------ */
@@ -221,12 +244,49 @@ export default function RegisterForm({
   const [done, setDone] = useState(false);
   const [apiError, setApiError] = useState("");
   const [apiSuccess, setApiSuccess] = useState("");
+  /** Live result of the availability lookup for the contact email. */
+  const [emailStatus, setEmailStatus] = useState<
+    "idle" | "checking" | "free" | "taken"
+  >("idle");
 
   const s1 = (key: keyof Step1) => (v: string) =>
     setStep1((p) => ({ ...p, [key]: v }));
 
-  const s2 = (key: keyof Step2) => (v: string) =>
+  const s2 = (key: keyof Step2) => (v: string) => {
+    if (key === "contactEmail") {
+      setEmailStatus("idle");
+      setErrors((prev) => {
+        if (prev.contactEmail !== EMAIL_TAKEN_MSG) return prev;
+        const next = { ...prev };
+        delete next.contactEmail;
+        return next;
+      });
+    }
     setStep2((p) => ({ ...p, [key]: v }));
+  };
+
+  /** Inline duplicate-email check, run when the field loses focus. */
+  const checkContactEmail = async () => {
+    const email = step2.contactEmail.trim();
+    if (!EMAIL_RE.test(email)) return;
+
+    setEmailStatus("checking");
+    const available = await lookupEmail(email);
+
+    if (available === false) {
+      setEmailStatus("taken");
+      setErrors((prev) => ({ ...prev, contactEmail: EMAIL_TAKEN_MSG }));
+    } else {
+      setEmailStatus(available === true ? "free" : "idle");
+      setErrors((prev) => {
+        if (prev.contactEmail !== EMAIL_TAKEN_MSG) return prev;
+        const next = { ...prev };
+        delete next.contactEmail;
+        return next;
+        }
+      );
+    }
+  };
 
   const goNext = () => {
     const errs = validateStep1(step1);
@@ -250,6 +310,17 @@ export default function RegisterForm({
     setApiError("");
     setApiSuccess("");
     setSubmitting(true);
+
+    // Last line of defence before the POST: a duplicate email is a 409 from the server,
+    // but catching it here keeps the message next to the field.
+    const email = step2.contactEmail.trim();
+    const available = EMAIL_RE.test(email) ? await lookupEmail(email) : true;
+    if (available === false) {
+      setEmailStatus("taken");
+      setErrors((prev) => ({ ...prev, contactEmail: EMAIL_TAKEN_MSG }));
+      setSubmitting(false);
+      return;
+    }
 
     try {
       const response = await axios.post(
@@ -566,9 +637,28 @@ export default function RegisterForm({
                         type="email"
                         value={step2.contactEmail}
                         onChange={s2("contactEmail")}
+                        onBlur={() => void checkContactEmail()}
                         placeholder="jane@company.com"
                         error={!!errors.contactEmail}
                       />
+                      {emailStatus === "free" && !errors.contactEmail && (
+                        <p className="mt-1.5 text-xs text-emerald-600 flex items-center gap-1">
+                          <svg
+                            className="w-3.5 h-3.5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M20 6L9 17l-5-5"
+                            />
+                          </svg>
+                          Available - this address is free to register.
+                        </p>
+                      )}
                       <FieldError message={errors.contactEmail} />
                     </div>
                     <div>

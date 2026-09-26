@@ -120,10 +120,11 @@ export default function PendingApprovalsCard() {
                 </span>
                 <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                   <button
-                    onClick={() => handleApprove(client.id)}
+                    onClick={() => setSelectedClientId(client.id)}
+                    title="Review and choose the service roles to grant"
                     className="px-3 py-1.5 bg-orange-500 text-white text-xs font-medium rounded-lg hover:bg-orange-600 transition-colors"
                   >
-                    Approve
+                    Review
                   </button>
                   <button
                     onClick={() => handleReject(client.id)}
