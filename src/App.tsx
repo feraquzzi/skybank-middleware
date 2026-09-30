@@ -11,6 +11,7 @@ import ClientsPage from './domains/dashboard/admin/ClientsPage';
 import UsersPage from './domains/dashboard/admin/UsersPage';
 import RoleRequestsPage from './domains/dashboard/admin/RoleRequestsPage';
 import AuditPage from './domains/dashboard/admin/AuditPage';
+import SettingsPage from './domains/dashboard/admin/SettingsPage';
 import ProtectedRoute from './domains/dashboard/components/ProtectedRoute';
 import logo from './assets/skybank-logo.png';
 
@@ -139,6 +140,16 @@ function App() {
                 }
             />
             <Route path="/services" element={<ServicesPage />} />
+
+            {/* Settings is available to both portals and reads the role live from the token. */}
+            <Route
+                path="/settings"
+                element={
+                    <ProtectedRoute requiredRole={userRole ?? ''} userRole={userRole}>
+                        <SettingsPage />
+                    </ProtectedRoute>
+                }
+            />
 
             {/* Administration - every screen here is gated on ROLE_ADMIN. */}
             <Route

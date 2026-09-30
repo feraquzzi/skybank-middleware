@@ -32,7 +32,7 @@ export default function AdminDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <TotalCompaniesCard count={total} />
-          <OverviewChart currentYearValue="$20,000" lastYearValue="$40,000" />
+          <OverviewChart />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useClients } from "../../../lib/useClients";
 
 function getInitials(name: string) {
@@ -12,17 +13,14 @@ function getInitials(name: string) {
 }
 
 export default function ActiveCompaniesCard() {
-  const { clients, status, error } = useClients("ACTIVE");
-  const [activeTab, setActiveTab] = useState("All");
+  const navigate = useNavigate();
+  const [tab, setTab] = useState<"all" | "active">("all");
 
-  const tabs = [`All (${clients.length})`, "Active"];
+  // Every client, fetched once — the tabs filter in memory so switching is instant.
+  const { clients, status, error } = useClients();
 
-  const filtered =
-    activeTab === "All" || activeTab.startsWith("All")
-      ? clients
-      : clients.filter((c) =>
-          activeTab === "Active" ? c.status === "ACTIVE" : true
-        );
+  const activeCount = clients.filter((c) => c.status === "ACTIVE").length;
+  const shown = tab === "all" ? clients : clients.filter((c) => c.status === "ACTIVE");
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
@@ -52,72 +50,89 @@ export default function ActiveCompaniesCard() {
             </p>
           </div>
         </div>
-        <button className="text-sm text-orange-500 hover:text-orange-600 font-medium">
+        <button
+          onClick={() => navigate("/admin/clients")}
+          className="text-sm text-orange-500 hover:text-orange-600 font-medium"
+        >
           View Directory ({clients.length}) <span className="ml-1">&gt;</span>
         </button>
       </div>
 
       <div className="flex items-center gap-2 mb-6">
-        {tabs.map((tab) => (
+        {(
+          [
+            { key: "all", label: `All (${clients.length})` },
+            { key: "active", label: `Active (${activeCount})` },
+          ] as const
+        ).map((t) => (
           <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
+            key={t.key}
+            onClick={() => setTab(t.key)}
             className={`px-4 py-2 rounded-full text-xs font-medium transition-colors ${
-              activeTab === tab
+              tab === t.key
                 ? "bg-orange-500 text-white"
                 : "bg-gray-100 text-gray-500 hover:bg-gray-200"
             }`}
           >
-            {tab}
+            {t.label}
           </button>
         ))}
       </div>
 
       {status === "loading" && (
         <div className="py-8 text-center text-sm text-gray-400">
-          Loading active companies…
+          Loading companies…
         </div>
       )}
 
       {status === "error" && (
         <div className="py-8 text-center text-sm text-red-500">
-          {error || "Failed to load active companies"}
+          {error || "Failed to load companies"}
         </div>
       )}
 
-      {status === "success" && filtered.length === 0 && (
+      {status === "success" && shown.length === 0 && (
         <div className="py-8 text-center text-sm text-gray-400">
-          No active companies
+          {tab === "active" ? "No active companies" : "No companies yet"}
         </div>
       )}
 
-      {status === "success" && filtered.length > 0 && (
-        <div className="space-y-3 mb-6">
-          {filtered.map((client) => (
-            <div
+      {status === "success" && shown.length > 0 && (
+        <div className="space-y-3 mb-6 max-h-80 overflow-y-auto">
+          {shown.slice(0, 8).map((client) => (
+            <button
               key={client.id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
+              onClick={() => navigate("/admin/clients")}
+              className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-left"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold text-gray-600">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold text-gray-600 flex-shrink-0">
                   {getInitials(client.companyName)}
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-gray-900 truncate">
                       {client.companyName}
                     </p>
-                    <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                    <span
+                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
+                        client.status === "ACTIVE"
+                          ? "text-green-600 bg-green-50"
+                          : client.status === "PENDING"
+                            ? "text-amber-600 bg-amber-50"
+                            : "text-gray-500 bg-gray-100"
+                      }`}
+                    >
                       {client.status}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-400 truncate">
                     {client.industry && `${client.industry} · `}
                     {client.country || "—"} · {client.registrationNumber || "—"}
                   </p>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="text-right flex-shrink-0">
                 <p className="text-sm font-bold text-gray-900">
                   {client.userCount ?? 0} users
                 </p>
@@ -127,7 +142,7 @@ export default function ActiveCompaniesCard() {
                     : "—"}
                 </p>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       )}

@@ -45,7 +45,10 @@ export interface RoleChangeApplicationResponse {
   userId: string;
   username: string;
   email: string;
+  /** The complete target role set - what the vendor ends up with on approval. */
   requestedRoles: string[];
+  /** Only the roles the vendor did not hold at submit time (may be empty on older rows). */
+  newlyRequestedRoles?: string[];
   status: RoleApplicationStatus;
   reviewedBy: string | null;
   reviewedAt: string | null;
@@ -93,6 +96,12 @@ export interface DownstreamAuditResponse {
   httpStatus: number;
   startTime: string;
   endTime: string;
+}
+
+/** Payload for changing the signed-in user's own password. */
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }
 
 /** Spring's page envelope as returned by `GET /api/admin/downstream-audit`. */

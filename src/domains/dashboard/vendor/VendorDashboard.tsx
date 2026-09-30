@@ -1,12 +1,24 @@
 import Sidebar from "../components/Sidebar";
 import TopNav from "../components/TopNav";
-import VendorStatsCard from "../components/VendorStatsCard";
-import APITrafficCard from "../components/APITrafficCard";
-import AvailableServices from "../components/AvailableServices";
 import { getDisplayName } from "../../../lib/user";
+import { useServiceCatalog } from "../../../lib/serviceCatalog";
+import { useRoleApplications } from "../../../lib/useRoleApplications";
 
 export default function VendorDashboard() {
   const displayName = getDisplayName();
+  const { services, status: catalogStatus } = useServiceCatalog();
+  const {
+    roles,
+    pending,
+    applications,
+    status: applicationsStatus,
+  } = useRoleApplications();
+
+  const roleSet = new Set(roles);
+  const assigned = services.filter((s) => roleSet.has(s.role));
+  const approvedCount = applications.filter(
+    (a) => a.status === "APPROVED",
+  ).length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -17,78 +29,193 @@ export default function VendorDashboard() {
       <div className="ml-20 pt-24 p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Welcome Back, {displayName} !</h1>
-            <p className="text-sm text-gray-500 mt-1">Vendor Operations & API Services Hub</p>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Welcome Back, {displayName} !
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Vendor Operations & API Services Hub
+            </p>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl">
-            <div className="w-2 h-2 rounded-full bg-green-500" />
-            <span className="text-sm font-medium text-gray-700">Live Production API</span>
-            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">v2.4</span>
+        </div>
+
+        {/* Summary - everything here is read live from the backend and your token */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div className="flex items-start justify-between mb-3">
+              <p className="text-xs font-semibold text-gray-400 tracking-wide">
+                ASSIGNED SERVICES
+              </p>
+              <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
+                <svg
+                  className="w-4 h-4 text-orange-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <span className="text-3xl font-bold text-gray-900">
+              {catalogStatus === "success" ? assigned.length : "—"}
+            </span>
+            <div className="flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
+              <span className="text-xs text-gray-400">
+                of {catalogStatus === "success" ? services.length : "—"} on the
+                platform
+              </span>
+              <a
+                href="/services"
+                className="text-xs font-semibold text-orange-500 hover:text-orange-600"
+              >
+                Browse →
+              </a>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div className="flex items-start justify-between mb-3">
+              <p className="text-xs font-semibold text-gray-400 tracking-wide">
+                PENDING REQUESTS
+              </p>
+              <div className="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center">
+                <svg
+                  className="w-4 h-4 text-amber-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <span className="text-3xl font-bold text-gray-900">
+              {applicationsStatus === "success" ? (pending ? 1 : 0) : "—"}
+            </span>
+            <div className="flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
+              <span className="text-xs text-gray-400">
+                {pending
+                  ? "Awaiting administrator review"
+                  : "Nothing awaiting review"}
+              </span>
+              <a
+                href="/services"
+                className="text-xs font-semibold text-orange-500 hover:text-orange-600"
+              >
+                Request →
+              </a>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div className="flex items-start justify-between mb-3">
+              <p className="text-xs font-semibold text-gray-400 tracking-wide">
+                REQUESTS APPROVED
+              </p>
+              <div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center">
+                <svg
+                  className="w-4 h-4 text-emerald-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+            </div>
+            <span className="text-3xl font-bold text-gray-900">
+              {applicationsStatus === "success" ? approvedCount : "—"}
+            </span>
+            <div className="flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
+              <span className="text-xs text-gray-400">
+                Lifetime role approvals
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <VendorStatsCard
-            title="TOTAL API REQUESTS"
-            value="2.84M"
-            change="+18.4%"
-            changeColor="green"
-            icon={
-              <svg className="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            }
-            footerLeft="99.98% Success Rate"
-            footerRight="Optimal"
-            footerRightColor="green"
-          />
-          <VendorStatsCard
-            title="SETTLED VOLUME"
-            value="$4.92M"
-            change="+12.1%"
-            changeColor="green"
-            icon={
-              <svg className="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            }
-            footerLeft="Avg. settlement: 1.2s"
-            footerRight="T+0 instant"
-            footerRightColor="green"
-          />
-          <VendorStatsCard
-            title="ACTIVE CUSTOMERS"
-            value="84,320"
-            change="+2,410 new"
-            changeColor="blue"
-            icon={
-              <svg className="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            }
-            footerLeft="Across 14 regions"
-            footerRight="Multi-KYC"
-            footerRightColor="green"
-          />
-          <VendorStatsCard
-            title="ESCROW BALANCE"
-            value="$385,400"
-            icon={
-              <svg className="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            }
-            footerLeft="Next payout 09:00 AM"
-            footerRight="Top-up →"
-            footerRightColor="orange"
-          />
-        </div>
+        {/* Assigned services */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Your Assigned Services
+              </h3>
+              <p className="text-xs text-gray-400 mt-0.5">
+                The service roles your access token currently carries
+              </p>
+            </div>
+            <a
+              href="/services"
+              className="px-4 py-2 text-xs font-medium text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors"
+            >
+              Manage Services
+            </a>
+          </div>
 
-        <div className="mb-6">
-          <APITrafficCard />
-        </div>
+          {catalogStatus === "loading" && (
+            <p className="py-6 text-center text-sm text-gray-400">
+              Loading services…
+            </p>
+          )}
 
-        <AvailableServices />
+          {catalogStatus === "error" && (
+            <p className="py-6 text-center text-sm text-red-500">
+              Could not load the service catalogue
+            </p>
+          )}
+
+          {catalogStatus === "success" &&
+            (assigned.length === 0 ? (
+              <div className="py-8 text-center">
+                <p className="text-sm font-medium text-gray-700">
+                  No services assigned yet
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Browse the services page to request access from an
+                  administrator.
+                </p>
+                <a
+                  href="/services"
+                  className="inline-block mt-4 px-5 py-2.5 text-sm font-medium text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors"
+                >
+                  Request Services
+                </a>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {assigned.map((service) => (
+                  <a
+                    key={service.role}
+                    href="/services"
+                    className="flex items-center gap-3 p-3.5 bg-gray-50 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50/40 transition-colors"
+                  >
+                    <code className="px-2 py-1 bg-white text-gray-500 text-[10px] font-mono rounded border border-gray-100 flex-shrink-0">
+                      {service.role}
+                    </code>
+                    <span className="text-sm font-medium text-gray-800 truncate">
+                      {service.displayName}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            ))}
+        </div>
 
         <footer className="mt-8 pt-6 border-t border-gray-200 flex items-center justify-between text-xs text-gray-400">
           <p>Sky Bank Sierra Leone Limited · Authorized by Bank of Sierra Leone</p>

@@ -9,6 +9,7 @@ import type {
   UserRolesRequest,
   DownstreamAuditResponse,
   PageResponse,
+  ChangePasswordRequest,
 } from "./types";
 
 export type {
@@ -200,6 +201,20 @@ export const customerApi = {
     request<RoleChangeApplicationResponse[]>(
       "/customer-management/role-applications/mine"
     ),
+};
+
+/* ---- Account (self-service, any signed-in user) ---- */
+
+export const accountApi = {
+  /**
+   * Change your own password. The server re-verifies the current password first, so a
+   * wrong current password comes back as 401 and nothing is modified.
+   */
+  changePassword: (body: ChangePasswordRequest) =>
+    request<{ message: string }>("/account/password", {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
 };
 
 /* ---- Public endpoints ---- */

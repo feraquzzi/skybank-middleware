@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import TopNav from "../components/TopNav";
 import { adminApi } from "../../../lib/api";
@@ -19,6 +19,7 @@ export default function AuditPage() {
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [filter, setFilter] = useState("");
 
   const load = useCallback(async (pageNumber: number) => {
     setStatus("loading");
@@ -41,6 +42,26 @@ export default function AuditPage() {
     void load(page);
   }, [page, load]);
 
+  // Client-side filter over the current page - the endpoint has no server-side search.
+  const visibleRows = useMemo(() => {
+    if (!data) return [];
+    const needle = filter.trim().toLowerCase();
+    if (!needle) return data.content;
+    return data.content.filter((record) => {
+      const haystack = [
+        record.userId,
+        String(record.httpStatus),
+        serviceOf(record),
+        operationOf(record),
+        summarize(record.request),
+        record.request,
+      ]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(needle);
+    });
+  }, [data, filter]);
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Sidebar />
@@ -49,7 +70,7 @@ export default function AuditPage() {
         <TopNav portal="admin" />
 
         <div className="mb-6 mt-20">
-          <h1 className="text-3xl font-bold text-gray-900">Downstream Audit</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Downstream DB</h1>
           <p className="text-sm text-gray-500 mt-1">
             Every call this service made to a downstream system on behalf of a
             user
@@ -57,7 +78,7 @@ export default function AuditPage() {
         </div>
 
         <div className="bg-white rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
                 <svg
@@ -70,7 +91,7 @@ export default function AuditPage() {
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"
                   />
                 </svg>
               </div>
@@ -84,11 +105,59 @@ export default function AuditPage() {
               </div>
             </div>
 
-            {data && (
-              <span className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">
-                {data.totalElements} records
-              </span>
-            )}
+            <div className="flex items-center gap-3">
+              {/* Filter - narrows the current page across every rendered column */}
+              <div className="relative w-full sm:w-72">
+                <svg
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                  />
+                </svg>
+                <input
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                  placeholder="Filter by service, operation, user…"
+                  className="w-full pl-10 pr-9 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent focus:bg-white transition-colors"
+                />
+                {filter && (
+                  <button
+                    onClick={() => setFilter("")}
+                    aria-label="Clear filter"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                  >
+                    <svg
+                      className="w-3.5 h-3.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
+              {data && (
+                <span className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full whitespace-nowrap">
+                  {filter
+                    ? `${visibleRows.length} of ${data.content.length}`
+                    : `${data.totalElements} records`}
+                </span>
+              )}
+            </div>
           </div>
 
           {status === "loading" && (
@@ -111,19 +180,38 @@ export default function AuditPage() {
             </div>
           )}
 
+          {status === "success" &&
+            data &&
+            visibleRows.length === 0 &&
+            data.content.length > 0 && (
+              <div className="py-12 text-center">
+                <p className="text-sm font-medium text-gray-700">
+                  No records match “{filter}”
+                </p>
+                <button
+                  onClick={() => setFilter("")}
+                  className="mt-3 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+                >
+                  Clear filter
+                </button>
+              </div>
+            )}
+
           {status === "success" && data && data.content.length === 0 && (
             <div className="py-12 text-center text-sm text-gray-400">
               No downstream calls have been recorded yet.
             </div>
           )}
 
-          {status === "success" && data && data.content.length > 0 && (
+          {status === "success" && data && visibleRows.length > 0 && (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
                     <tr className="text-xs text-gray-400 border-b border-gray-100">
                       <th className="py-3 pr-4 font-medium">Started</th>
+                      <th className="py-3 pr-4 font-medium">Service</th>
+                      <th className="py-3 pr-4 font-medium">Operation</th>
                       <th className="py-3 pr-4 font-medium">User</th>
                       <th className="py-3 pr-4 font-medium">Status</th>
                       <th className="py-3 pr-4 font-medium">Duration</th>
@@ -131,7 +219,7 @@ export default function AuditPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.content.map((record) => {
+                    {visibleRows.map((record) => {
                       const open = expandedId === record.id;
                       return (
                         <tr
@@ -143,6 +231,14 @@ export default function AuditPage() {
                         >
                           <td className="py-3 pr-4 text-xs text-gray-600 whitespace-nowrap">
                             {formatDateTime(record.startTime)}
+                          </td>
+                          <td className="py-3 pr-4">
+                            <span className="inline-flex items-center px-2 py-0.5 bg-orange-50 text-orange-600 rounded text-[11px] font-semibold">
+                              {serviceOf(record)}
+                            </span>
+                          </td>
+                          <td className="py-3 pr-4 text-xs font-medium text-gray-700">
+                            {operationOf(record)}
                           </td>
                           <td className="py-3 pr-4 text-xs font-mono text-gray-600">
                             {record.userId || "—"}
@@ -291,4 +387,26 @@ function formatDateTime(iso: string): string {
     minute: "2-digit",
     second: "2-digit",
   });
+}
+
+/** The downstream service a call targeted, derived from the request payload. */
+function serviceOf(record: DownstreamAuditResponse): string {
+  return /customer/i.test(record.request) ? "Customer Service" : "Account Service";
+}
+
+/** The operation performed, derived from the request payload. */
+function operationOf(record: DownstreamAuditResponse): string {
+  const raw = record.request.trim();
+  if (!raw) return "—";
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object") {
+      const op =
+        parsed.operation ?? parsed.operationName ?? parsed.action ?? parsed.method;
+      if (typeof op === "string" && op) return op;
+    }
+  } catch {
+    // fall through to plain-text handling
+  }
+  return raw.length > 24 ? `${raw.slice(0, 24)}…` : raw || "—";
 }

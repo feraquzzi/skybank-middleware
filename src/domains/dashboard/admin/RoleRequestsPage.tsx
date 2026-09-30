@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import TopNav from "../components/TopNav";
 import { adminApi, ApiError } from "../../../lib/api";
@@ -12,6 +12,9 @@ interface Flash {
   text: string;
 }
 
+/** Rows per page in the review queue table. */
+const PAGE_SIZE = 8;
+
 export default function RoleRequestsPage() {
   const [applications, setApplications] = useState<
     RoleChangeApplicationResponse[]
@@ -20,6 +23,24 @@ export default function RoleRequestsPage() {
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [flash, setFlash] = useState<Flash | null>(null);
+  const [page, setPage] = useState(1);
+  const [prevCount, setPrevCount] = useState(-1);
+
+  // Deleting rows (approve/reject) can move the last page out from under us.
+  const totalPages = Math.max(1, Math.ceil(applications.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paged = useMemo(
+    () =>
+      applications.slice(
+        (currentPage - 1) * PAGE_SIZE,
+        currentPage * PAGE_SIZE,
+      ),
+    [applications, currentPage],
+  );
+  if (prevCount !== applications.length) {
+    setPrevCount(applications.length);
+    if (currentPage > totalPages) setPage(totalPages);
+  }
 
   const load = useCallback(async () => {
     setStatus("loading");
@@ -198,85 +219,202 @@ export default function RoleRequestsPage() {
           )}
 
           {status === "success" && applications.length > 0 && (
-            <div className="space-y-4">
-              {applications.map((app) => (
-                <div
-                  key={app.id}
-                  className="p-4 rounded-2xl border border-gray-100 bg-gray-50/60 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center text-xs font-bold text-gray-600 flex-shrink-0">
-                        {initials(app.username)}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate">
-                          {app.username}
-                        </p>
-                        <p className="text-xs text-gray-400 truncate">
-                          {app.email} · requested {formatDate(app.createdAt)}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                      {app.requestedRoles.map((role) => (
-                        <span
-                          key={role}
-                          title={describeRoleName(role).description}
-                          className="px-2 py-1 bg-white border border-gray-200 rounded-lg text-[11px] font-mono text-gray-600"
-                        >
-                          {describeRoleName(role).displayName}
-                        </span>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <button
-                        onClick={() => void decide(app, "reject")}
-                        disabled={busyId === app.id}
-                        className="px-4 py-2 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors disabled:opacity-50"
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[760px] table-fixed text-left border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50/80 border-b border-gray-100">
+                      <th
+                        scope="col"
+                        className="px-5 py-3.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider"
                       >
-                        Reject
-                      </button>
-                      <button
-                        onClick={() => void decide(app, "approve")}
-                        disabled={busyId === app.id}
-                        className="px-4 py-2 text-xs font-medium text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors disabled:opacity-50 flex items-center gap-2"
-                      >
-                        {busyId === app.id && (
-                          <svg
-                            className="w-3.5 h-3.5 animate-spin"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                            />
+                        <span className="inline-flex items-center gap-1.5">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                           </svg>
-                        )}
-                        Approve
-                      </button>
-                    </div>
-                  </div>
+                          Requester
+                        </span>
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-3.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider"
+                      >
+                        <span className="inline-flex items-center gap-1.5">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                          </svg>
+                          Newly Requested Services
+                        </span>
+                      </th>
+                      <th
+                        scope="col"
+                        className="hidden lg:table-cell w-40 px-3 py-3.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider"
+                      >
+                        <span className="inline-flex items-center gap-1.5">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          Submitted
+                        </span>
+                      </th>
+                      <th
+                        scope="col"
+                        className="w-44 pl-3 pr-5 py-3.5 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wider"
+                      >
+                        <span className="sr-only">Actions</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {paged.map((app) => (
+                      <tr
+                        key={app.id}
+                        className="hover:bg-gray-50/70 transition-colors"
+                      >
+                        <td className="pl-5 pr-3 py-3.5">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-9 h-9 bg-white border border-gray-200 rounded-full flex items-center justify-center text-[11px] font-bold text-gray-500 flex-shrink-0">
+                              {initials(app.username)}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-gray-900 truncate">
+                                {app.username}
+                              </p>
+                              <p className="text-[11px] text-gray-400 truncate">
+                                {app.email}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-3 py-3.5">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {(app.newlyRequestedRoles?.length
+                              ? app.newlyRequestedRoles
+                              : app.requestedRoles
+                            ).map((role) => (
+                              <span
+                                key={role}
+                                title={describeRoleName(role).description}
+                                className="px-2 py-0.5 bg-white border border-orange-200 rounded-lg text-[10px] font-mono text-orange-700"
+                              >
+                                {describeRoleName(role).displayName}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="hidden lg:table-cell px-3 py-3.5">
+                          <span className="text-xs text-gray-400">
+                            {formatDate(app.createdAt)}
+                          </span>
+                        </td>
+                        <td className="pl-3 pr-5 py-3.5">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => void decide(app, "reject")}
+                              disabled={busyId === app.id}
+                              className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+                            >
+                              Reject
+                            </button>
+                            <button
+                              onClick={() => void decide(app, "approve")}
+                              disabled={busyId === app.id}
+                              className="px-3 py-1.5 text-xs font-medium text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                            >
+                              {busyId === app.id && (
+                                <svg
+                                  className="w-3 h-3 animate-spin"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  />
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                                  />
+                                </svg>
+                              )}
+                              Approve
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-                  <p className="text-[11px] text-gray-400 mt-3">
-                    Approving replaces every service role this user holds with
-                    the set above.
-                  </p>
+              {/* Pagination footer */}
+              <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 border-t border-gray-100 bg-gray-50/50">
+                <p className="text-xs text-gray-500">
+                  Showing{" "}
+                  <span className="font-semibold text-gray-700">
+                    {applications.length === 0
+                      ? 0
+                      : (currentPage - 1) * PAGE_SIZE + 1}
+                  </span>
+                  –
+                  <span className="font-semibold text-gray-700">
+                    {Math.min(currentPage * PAGE_SIZE, applications.length)}
+                  </span>{" "}
+                  of{" "}
+                  <span className="font-semibold text-gray-700">
+                    {applications.length}
+                  </span>{" "}
+                  requests
+                </p>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setPage(currentPage - 1)}
+                    disabled={currentPage <= 1}
+                    className="p-1.5 rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-700 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Previous page"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      aria-current={p === currentPage ? "page" : undefined}
+                      className={`w-8 h-8 rounded-lg text-xs font-semibold transition-colors ${
+                        p === currentPage
+                          ? "bg-gray-900 text-white"
+                          : "bg-white border border-gray-200 text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setPage(currentPage + 1)}
+                    disabled={currentPage >= totalPages}
+                    className="p-1.5 rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-700 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Next page"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
                 </div>
-              ))}
-            </div>
+              </div>
+
+              <p className="text-[11px] text-gray-400 mt-4 px-1">
+                Showing only the newly requested services. Approving applies the
+                vendor's complete target role set — services they already hold
+                are kept.
+              </p>
+            </>
           )}
         </div>
       </div>
