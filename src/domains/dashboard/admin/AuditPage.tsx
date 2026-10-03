@@ -2,10 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import TopNav from "../components/TopNav";
 import { adminApi } from "../../../lib/api";
-import type {
-  DownstreamAuditResponse,
-  PageResponse,
-} from "../../../lib/types";
+import type { DownstreamAuditResponse, PageResponse } from "../../../lib/types";
 
 type Status = "loading" | "success" | "error";
 
@@ -13,9 +10,8 @@ const PAGE_SIZE = 20;
 
 export default function AuditPage() {
   const [page, setPage] = useState(0);
-  const [data, setData] = useState<PageResponse<DownstreamAuditResponse> | null>(
-    null,
-  );
+  const [data, setData] =
+    useState<PageResponse<DownstreamAuditResponse> | null>(null);
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -33,7 +29,9 @@ export default function AuditPage() {
       );
       setStatus("success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not load the audit log");
+      setError(
+        err instanceof Error ? err.message : "Could not load the audit log",
+      );
       setStatus("error");
     }
   }, []);
@@ -224,9 +222,7 @@ export default function AuditPage() {
                       return (
                         <tr
                           key={record.id}
-                          onClick={() =>
-                            setExpandedId(open ? null : record.id)
-                          }
+                          onClick={() => setExpandedId(open ? null : record.id)}
                           className="border-b border-gray-50 last:border-0 hover:bg-gray-50/70 transition-colors cursor-pointer align-top"
                         >
                           <td className="py-3 pr-4 text-xs text-gray-600 whitespace-nowrap">
@@ -285,7 +281,10 @@ export default function AuditPage() {
 
                             {open && (
                               <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <Payload label="Request" value={record.request} />
+                                <Payload
+                                  label="Request"
+                                  value={record.request}
+                                />
                                 <Payload
                                   label="Response"
                                   value={record.response}
@@ -391,18 +390,25 @@ function formatDateTime(iso: string): string {
 
 /** The downstream service a call targeted, derived from the request payload. */
 function serviceOf(record: DownstreamAuditResponse): string {
-  return /customer/i.test(record.request) ? "Customer Service" : "Account Service";
+  return /customer/i.test(record.request)
+    ? "Customer Service"
+    : "Account Service";
 }
 
-/** The operation performed, derived from the request payload. */
+/** The operation performed - the orchestrator's `operation` field, falling back
+ * to the request payload for records recorded before that column existed. */
 function operationOf(record: DownstreamAuditResponse): string {
+  if (record.operation) return record.operation;
   const raw = record.request.trim();
   if (!raw) return "—";
   try {
     const parsed = JSON.parse(raw);
     if (parsed && typeof parsed === "object") {
       const op =
-        parsed.operation ?? parsed.operationName ?? parsed.action ?? parsed.method;
+        parsed.operation ??
+        parsed.operationName ??
+        parsed.action ??
+        parsed.method;
       if (typeof op === "string" && op) return op;
     }
   } catch {

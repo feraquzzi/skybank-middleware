@@ -22,6 +22,9 @@ import type { RoleChangeApplicationResponse } from "../../../lib/types";
 /** Rows per page in the All Platform Services table. */
 const PAGE_SIZE = 8;
 
+/** Rows per page in the Your Assigned Services table. */
+const ASSIGNED_PAGE_SIZE = 5;
+
 /** Little icons shown next to the table header labels. */
 const HEADER_ICONS = {
   service:
@@ -47,14 +50,23 @@ export default function ServicesPage() {
   const [allOpen, setAllOpen] = useState(false);
   /** Current page of the All Platform Services table (1-based). */
   const [page, setPage] = useState(1);
+  /** Current page of the Your Assigned Services table (1-based). */
+  const [assignedPage, setAssignedPage] = useState(1);
   /** Tracks the search/category key so a filter change resets the page (render-phase). */
   const [prevFilterKey, setPrevFilterKey] = useState("");
+  /** Tracks the search key so a new search also restarts the assigned table. */
+  const [prevAssignedKey, setPrevAssignedKey] = useState("");
 
   // A new search or category pick always restarts the list at page one.
   const filterKey = `${query}|${category}`;
   if (prevFilterKey !== filterKey) {
     setPrevFilterKey(filterKey);
     setPage(1);
+  }
+  // The assigned table only depends on the search, so only that resets it.
+  if (prevAssignedKey !== query) {
+    setPrevAssignedKey(query);
+    setAssignedPage(1);
   }
 
   // The catalogue is read live from the backend, so a role added in Keycloak shows up here
@@ -128,6 +140,21 @@ export default function ServicesPage() {
     () =>
       allServices.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
     [allServices, currentPage],
+  );
+
+  // Pagination for the Your Assigned Services table.
+  const assignedTotalPages = Math.max(
+    1,
+    Math.ceil(assignedServices.length / ASSIGNED_PAGE_SIZE),
+  );
+  const assignedCurrentPage = Math.min(assignedPage, assignedTotalPages);
+  const pagedAssignedServices = useMemo(
+    () =>
+      assignedServices.slice(
+        (assignedCurrentPage - 1) * ASSIGNED_PAGE_SIZE,
+        assignedCurrentPage * ASSIGNED_PAGE_SIZE,
+      ),
+    [assignedServices, assignedCurrentPage],
   );
 
   // Only vendor accounts may request service roles, and system roles are never requestable.
@@ -485,9 +512,15 @@ export default function ServicesPage() {
             </div>
 
             <AssignedServicesTable
-              services={assignedServices}
+              services={pagedAssignedServices}
               pending={pending}
               onView={setViewingRole}
+              pagination={{
+                page: assignedCurrentPage,
+                totalPages: assignedTotalPages,
+                totalItems: assignedServices.length,
+                onPage: setAssignedPage,
+              }}
             />
           </section>
         )}
@@ -1115,10 +1148,17 @@ function AssignedServicesTable({
   services,
   pending,
   onView,
+  pagination,
 }: {
   services: ServiceInfo[];
   pending: RoleChangeApplicationResponse | null;
   onView: (role: string) => void;
+  pagination: {
+    page: number;
+    totalPages: number;
+    totalItems: number;
+    onPage: (page: number) => void;
+  };
 }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -1232,6 +1272,15 @@ function AssignedServicesTable({
           </tbody>
         </table>
       </div>
+
+      {/* Pagination footer — same style as the All Platform Services table */}
+      <PaginationFooter
+        page={pagination.page}
+        totalPages={pagination.totalPages}
+        totalItems={pagination.totalItems}
+        pageSize={ASSIGNED_PAGE_SIZE}
+        onPage={pagination.onPage}
+      />
     </div>
   );
 }

@@ -91,6 +91,8 @@ export interface UserRolesRequest {
 export interface DownstreamAuditResponse {
   id: string;
   userId: string;
+  /** Service operation performed by the orchestrator. */
+  operation: string;
   request: string;
   response: string;
   httpStatus: number;
